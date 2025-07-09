@@ -54,9 +54,23 @@ const allCategories = [
     }
 ]
 
-router.get('/:slug', (req, res) => {
+
+router.get('/:slug', async (req, res) => {
+    const db = req.app.locals.db;
+
+    if (!db) {
+        return res.status(500).send("Database not initialized");
+    }
+
     const { slug } = req.params;
-    res.render('category', { slug, allCategories })
-})
+
+    try {
+        const articles = await db.collection("articles").find({ categorySlug: slug }).toArray();
+        res.render('category', { slug, allCategories, list_of_TheCategory: articles });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("DB error");
+    }
+});
 
 module.exports = router;

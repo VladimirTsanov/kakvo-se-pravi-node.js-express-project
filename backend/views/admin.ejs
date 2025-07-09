@@ -89,9 +89,7 @@
             const slug = document.getElementById('slug').value;
             const categorySlug = document.getElementById('categorySlug').value;
             const content = quill.root.innerHTML;
-
-
-
+            
             fetch('http://localhost:3000/admin', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

@@ -1,9 +1,36 @@
 const express = require('express');
 const path = require('path');
-const app = express();
+
 let mongo = require('mongoose');
+const { MongoClient} = require('mongodb');
 let Article = require('./models/article');
 const cors = require('cors');
+
+const port = 3000;
+const app = express();
+
+const url = 'mongodb+srv://myuser:qwertyqwerty@cluster0.bcxfop9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+const client = new MongoClient(url);
+
+client.connect()
+    .then(() => {
+        console.log("MongoDb connected");
+        const db = client.db('test');
+        app.locals.db = db;
+
+        const categoryRoutes = require('./routes/categories');
+        app.use('/category', categoryRoutes);
+
+        const articleRoutes = require('./routes/articles');
+        app.use('/article', articleRoutes);
+
+        app.listen(port, ()=> {
+            console.log(`Server running at http://localhost:${port}`)
+        });
+    })
+    .catch(err => {
+        console.log('Error connecting to MongoD:', err);
+    });
 
 const allCategories = [
     {
@@ -58,13 +85,6 @@ const allCategories = [
     }
 ]
 
-mongo.connect('mongodb+srv://myuser:qwertyqwerty@cluster0.bcxfop9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
-    .then(() => {
-        console.log('MongoDB connected');
-    })
-
-const categoriesRouter = require('./routes/categories');
-
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, "public")));
@@ -74,7 +94,7 @@ app.get('/', (req, res) => {
     res.render('homepage', { allCategories });
 });
 
-app.use('/category', categoriesRouter);
+
 
 app.get('/all-categories', (req, res) => {
     res.render('all_categories', { allCategories });
@@ -115,7 +135,3 @@ app.post('/admin', (req, res) => {
         });
 });
 
-const port = 3000;
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-});
