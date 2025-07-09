@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <%- include('header') %>
+
+    <main>
+        <section> <% allCategories.forEach((element) => { %>
+            <a href="/category/<%=element.slug%>"><h2><%= element.name%> </h2></a>
+            <a href="/category/<%=element.slug%>"><p><%= element.description%> </p></a>
+        <% }) %> </section><br>
+
+    </main>
+
+    <%- include('footer') %>
+
+</body>
+</html>

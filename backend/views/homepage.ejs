@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample</title>
+</head>
+<body>
+    <%- include('header') %>
+
+    <main>
+        <br><section> Section 1 with listing of all categories with cards </section> <br>
+
+        <section> Section 2 with some stats </section> <br>
+
+        <section>Section 3 with the most read articles </section> <br>
+    </main>
+
+    <a style="background-color: aqua;" href="/all-categories">Всички категории (временно)</a><br><br>
+
+    <% allCategories.forEach((e) => { %>
+        <a href="/category/<%=e.slug%>" style="background-color: aqua;"><%= e.name %></a><br>
+    <% }) %>
+
+    <%- include('footer') %>
+</body>
+</html>
