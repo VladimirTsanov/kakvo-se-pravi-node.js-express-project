@@ -12,12 +12,15 @@
     <main>
         <h1>Article:</h1>
 
-        <% the_articles.forEach(item => { %>
-            <h2> <%- item.title %> </h2>
+        <h2> <%- the_article.title %> </h2>
 
-            <%- item.content %>
-        <% }); %>
+        <%- the_article.content %>
 
+        <label for="itemInfo"> Article Info: <br>
+            Date created: <%- formattedDate %> <br>
+            Views: <%- the_article.articleViews %> 
+        </label>
+           
     </main>
 
 

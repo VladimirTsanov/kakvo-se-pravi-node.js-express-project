@@ -1,4 +1,5 @@
 const express = require('express');
+const Article = require('../models/article');
 const router = express.Router();
 
 const allCategories = [
@@ -56,16 +57,12 @@ const allCategories = [
 
 
 router.get('/:slug', async (req, res) => {
-    const db = req.app.locals.db;
 
-    if (!db) {
-        return res.status(500).send("Database not initialized");
-    }
 
     const { slug } = req.params;
 
     try {
-        const articles = await db.collection("articles").find({ categorySlug: slug }).toArray();
+        const articles = await Article.find({ categorySlug: slug });
         res.render('category', { slug, allCategories, list_of_TheCategory: articles });
     } catch (err) {
         console.error(err);

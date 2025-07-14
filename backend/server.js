@@ -1,22 +1,43 @@
 const express = require('express');
+const cookieParser = require('cookie-parser');
+const loginRoutes = require('./routes/login');
+const bodyParser = require('body-parser');
+const nodemailer = require('nodemailer');
+const validator = require('validator');
 const path = require('path');
-
 let mongo = require('mongoose');
-const { MongoClient} = require('mongodb');
-let Article = require('./models/article');
 const cors = require('cors');
-
-const port = 3000;
+const adminRouter = require('./routes/admin');
+require('dotenv').config();
 const app = express();
 
-const url = 'mongodb+srv://myuser:qwertyqwerty@cluster0.bcxfop9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
-const client = new MongoClient(url);
+app.use(cors());
+app.use(cookieParser('ключ'));
 
-client.connect()
-    .then(() => {
-        console.log("MongoDb connected");
-        const db = client.db('test');
-        app.locals.db = db;
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use('/login', loginRoutes);
+app.use('/admin', requireAuth, adminRouter);
+
+const port = 3000;
+
+
+const url = 'mongodb+srv://myuser:qwertyqwerty@cluster0.bcxfop9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+
+const connectDB = async () => {
+    try {
+        await mongo.connect(url, {
+            dbName: "test"
+        });
+        console.log('MongoDB connected!');
 
         const categoryRoutes = require('./routes/categories');
         app.use('/category', categoryRoutes);
@@ -24,13 +45,16 @@ client.connect()
         const articleRoutes = require('./routes/articles');
         app.use('/article', articleRoutes);
 
-        app.listen(port, ()=> {
+        app.listen(port, () => {
             console.log(`Server running at http://localhost:${port}`)
         });
-    })
-    .catch(err => {
-        console.log('Error connecting to MongoD:', err);
-    });
+
+    } catch (error) {
+        console.error('MongoDB connection failed:', error.message);
+    }
+};
+
+connectDB();
 
 const allCategories = [
     {
@@ -85,16 +109,17 @@ const allCategories = [
     }
 ]
 
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, "public")));
-app.use(express.json());
 
 app.get('/', (req, res) => {
     res.render('homepage', { allCategories });
 });
 
-
+function requireAuth(req, res, next) {
+    if (req.signedCookies.auth === 'admin') {
+        return next();
+    }
+    res.redirect('/login');
+}
 
 app.get('/all-categories', (req, res) => {
     res.render('all_categories', { allCategories });
@@ -105,33 +130,61 @@ app.get('/frequently-asked-questions', (req, res) => {
 });
 
 app.get('/feedback', (req, res) => {
-    res.render('feedback', { allCategories });
+    res.render('feedback', { allCategories, errors: [] });
+});
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+    },
+});
+
+app.post('/feedback', async(req, res) => {
+
+    const { errors = [], name = '', email = '', message = '' } = req.body;
+
+    if (!name.trim()) errors.push("Трябва да попълните полето за име!");
+    if (name && /[`!@#$%^&*()\[\]{};':"\\|,.<>\/?~]/.test(name))
+        errors.push("Името съдържа недопустими символи.");
+    
+    if (!email.trim()) errors.push("Трябва да попълните полето за имейл!");
+    if (email && !validator.isEmail(email))
+        errors.push("Невалиден имейл адрес.");
+
+    if (!message.trim()) errors.push("Полето за съобщение е задължително.");
+
+    if (errors.length) {
+        return res.render("feedback", { errors });
+    }
+
+
+    const mailOptions = {
+        from: `"${name}" <${email}>`,
+        to: process.env.SMTP_USER,
+        subject: 'Новo съобщение от формата на уебсайт \"Какво се прави\" ',
+        text: `Име: ${name}\nИмейл на подателя: ${email}\nСъобщение:\n${message}`,
+        html: `
+            <p><strong>Име:</strong> ${name}</p>
+            <p><strong>Имейл на подателя:</strong> ${email}</p>
+            <p><strong>Съобщение:</strong></p>
+            <p>${message.replace(/\n/g, '<br>')}</p>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Email send error:', err);
+        res.json({ success: false, error: 'Имейлът не бе изпратен! Възникна проблем.' });
+    }
 });
 
 app.get('/about-page', (req, res) => {
     res.render('about', { allCategories });
 });
 
-app.get('/admin', (req, res) => {
-    res.render('admin', { allCategories });
-});
 
-app.post('/admin', (req, res) => {
-    const {title, slug, categorySlug, content} = req.body;
-
-    if (!title || !slug || !categorySlug) {
-        return res.status(400).json({message: 'Попълни всички задължителни полета!'});
-    }
-
-    const newArticle = new Article({ title, slug, categorySlug, content });
-
-    newArticle.save()
-        .then(() => {
-            res.json({ message: 'Статията е записана успешно.' })
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({ message: 'Грешка при записване.' });
-        });
-});
 

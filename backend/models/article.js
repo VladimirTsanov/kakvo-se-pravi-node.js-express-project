@@ -29,9 +29,9 @@ const articleSchema = new Schema({
         default:() => moment().tz('Europe/Sofia').toDate()
     },
 
-    // articleViews: {
-    //     type: Number
-    // }
+    articleViews: {
+        type: Number
+    }
 });
 
 const Article = mongoose.model('Article', articleSchema)
