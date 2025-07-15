@@ -1,22 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+<html lang="bg">
+
+<%- include('head') %>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+    }
+  </style>
+
+  <body>
     <%- include('header') %>
 
-    <main>
-        <section> <% allCategories.forEach((element) => { %>
-            <a href="/category/<%=element.slug%>"><h2><%= element.name%> </h2></a>
-            <a href="/category/<%=element.slug%>"><p><%= element.description%> </p></a>
-        <% }) %> </section><br>
+      <main>
+        <section class="container my-5">
+          <div class="row g-4">
+            <% allCategories.forEach((element)=> { %>
+              <div class="col-md-6 col-lg-4">
+                <a href="/category/<%= element.slug %>" class="text-decoration-none text-dark">
+                  <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                      <h5 class="card-title">
+                        <%= element.name %>
+                      </h5>
+                      <p class="card-text text-muted">
+                        <%= element.description %>
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              <% }); %>
+          </div>
+        </section>
 
-    </main>
 
-    <%- include('footer') %>
+      </main>
 
-</body>
+      <%- include('footer') %>
+
+  </body>
+
 </html>

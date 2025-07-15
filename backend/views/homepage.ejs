@@ -1,27 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sample</title>
-</head>
-<body>
-    <%- include('header') %>
+<html lang="bg">
 
-    <main>
-        <br><section> Section 1 with listing of all categories with cards </section> <br>
 
-        <section> Section 2 with some stats </section> <br>
+<%- include('head') %>
 
-        <section>Section 3 with the most read articles </section> <br>
-    </main>
+    <body>
+        <style>
+            .list-group-item {
+                transition: transform .2s;
+                margin: 0 auto;
+            }
 
-    <a style="background-color: aqua;" href="/all-categories">Всички категории (временно)</a><br><br>
+            .list-group-item:hover {
+                transform: scale(1.1);
+            }
+        </style>
 
-    <% allCategories.forEach((e) => { %>
-        <a href="/category/<%=e.slug%>" style="background-color: aqua;"><%= e.name %></a><br>
-    <% }) %>
+        <%- include('header') %>
 
-    <%- include('footer') %>
-</body>
+            <main>
+
+                <section class="w-100 py-5" style="background-color: rgb(236, 248, 248);">
+                    <div class="container mb-5">
+                        <h3 class="center-block">Категории:</h3>
+                        <div class="row">
+                            <% allCategories.forEach((e)=> { %>
+                                <div class="col-md-4 mb-3">
+                                    <a href="/category/<%= e.slug %>" class="btn btn-outline-info w-100">
+                                        <%= e.name %>
+                                    </a>
+                                </div>
+                                <% }) %>
+                        </div>
+                    </div>
+                </section>
+
+
+                <section class="w-100 mb-5" style="background-color: rgb(225, 244, 240);">
+                    <div class="container mb-5">
+                        <h3>Топ 5 най-четени статии:</h3>
+                        <ol class="list-group list-group-numbered">
+                            <% articles_top_five.forEach(record=> { %>
+                                <a href="/article/<%- record.slug %>" style="text-decoration: none">
+                                    <li class="list-group-item mb-3">
+                                        <h5>
+                                            <%= record.title %>
+                                        </h5>
+                                        <p class="mb-1">
+                                            Категория:
+                                            <% allCategories.forEach(item=> {
+                                                if (item.slug === record.categorySlug) { %>
+                                                <strong>
+                                                    <%= item.name %>
+                                                </strong>
+                                                <% }}) %>
+                                        </p>
+                                        <p>Views: <%= record.articleViews %>
+                                        </p>
+                                    </li>
+                                </a>
+                                <% }) %>
+                        </ol>
+                    </div>
+                </section>
+
+                <section class="w-100" style="background-color: rgb(201, 220, 243);">
+                    <div class="container mb-5">
+                        <h3>Най-четени категории:</h3>
+                        <% topCategoriesDisplay.forEach(record=> { %>
+                            <div class="mb-3">
+                                <h5>
+                                    <%= record.name %>
+                                </h5>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                        style="width: <%= record.percentage %>%"
+                                        aria-valuenow="<%= record.percentage %>" aria-valuemin="0" aria-valuemax="100">
+                                        <%= record.percentage %>%
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+
+                </section>
+
+            </main>
+
+
+            <%- include('footer') %>
+    </body>
+
 </html>

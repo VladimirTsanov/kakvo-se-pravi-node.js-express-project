@@ -1,32 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+<%- include('head') %>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
 
-<body>
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+    }
+  </style>
+
+  <body>
     <%- include('header') %>
-    <main>
-        <h1>Article:</h1>
 
-        <h2> <%- the_article.title %> </h2>
+      <main class="container my-5">
 
-        <%- the_article.content %>
+        <article class="mb-5">
+          <h2 class="fw-bold mb-3">
+            <%= the_article.title %>
+          </h2>
+          <div class="mb-4">
+            <%- the_article.content %>
+          </div>
+        </article>
 
-        <label for="itemInfo"> Article Info: <br>
-            Date created: <%- formattedDate %> <br>
-            Views: <%- the_article.articleViews %> 
-        </label>
-           
-    </main>
+        <div class="bg-light p-3 rounded shadow-sm">
+          <h5 class="mb-2">Информация за статията</h5>
+          <p class="mb-1"><strong>Дата на създаване:</strong>
+            <%= formattedDate %>
+          </p>
+          <p><strong>Преглеждания:</strong>
+            <%= the_article.articleViews %>
+          </p>
+        </div>
+
+      </main>
 
 
-    <%- include('footer') %>
+      <%- include('footer') %>
 
-
-</body>
+  </body>
 
 </html>

@@ -4,6 +4,7 @@ const loginRoutes = require('./routes/login');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const validator = require('validator');
+const Article = require('./models/article');
 const path = require('path');
 let mongo = require('mongoose');
 const cors = require('cors');
@@ -109,9 +110,54 @@ const allCategories = [
     }
 ]
 
+app.use((req, res, next) => {
+  res.locals.search = req.query.search || "";
+  next();
+});
 
-app.get('/', (req, res) => {
-    res.render('homepage', { allCategories });
+
+app.get('/', async (req, res) => {
+
+    let views_list = await Article.aggregate([
+        {
+            $group: {
+                _id: null,
+                totalViews: { $sum: "$articleViews" }
+            }
+        }
+    ]);
+
+    let top_three_Categories = await Article.aggregate([
+        {
+            $group: {
+                _id: "$categorySlug",
+                totalViews: { $sum: "$articleViews" }
+            }
+        },
+        { $sort: { totalViews: -1 } },
+        { $limit: 3 }
+    ]);
+
+    let articles_top_five = await Article.find().sort({ articleViews: -1 }).limit(5);
+
+    let total_views = views_list[0]?.totalViews || 0;
+
+    let topCategoriesDisplay = top_three_Categories.map(cat => {
+        let match = allCategories.find(c => c.slug === cat._id);
+        return {
+            name: match?.name || cat._id,
+            views: cat.totalViews,
+            percentage: Math.round((cat.totalViews / total_views) * 100)
+        };
+    });
+
+    res.render('homepage', {
+        allCategories,
+        articles_top_five,
+        topCategoriesDisplay, 
+        total_views,
+    });
+
 });
 
 function requireAuth(req, res, next) {
@@ -123,10 +169,6 @@ function requireAuth(req, res, next) {
 
 app.get('/all-categories', (req, res) => {
     res.render('all_categories', { allCategories });
-});
-
-app.get('/frequently-asked-questions', (req, res) => {
-    res.render('asked_questions', { allCategories });
 });
 
 app.get('/feedback', (req, res) => {
@@ -141,14 +183,14 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-app.post('/feedback', async(req, res) => {
+app.post('/feedback', async (req, res) => {
 
     const { errors = [], name = '', email = '', message = '' } = req.body;
 
     if (!name.trim()) errors.push("Трябва да попълните полето за име!");
     if (name && /[`!@#$%^&*()\[\]{};':"\\|,.<>\/?~]/.test(name))
         errors.push("Името съдържа недопустими символи.");
-    
+
     if (!email.trim()) errors.push("Трябва да попълните полето за имейл!");
     if (email && !validator.isEmail(email))
         errors.push("Невалиден имейл адрес.");
@@ -184,6 +226,19 @@ app.post('/feedback', async(req, res) => {
 
 app.get('/about-page', (req, res) => {
     res.render('about', { allCategories });
+});
+
+app.get('/search_results', async(req, res) => {
+    const { search } = req.query;
+
+    let searchQuery = await Article.find({
+        $or: [
+            {title: { $regex: search, $options: 'i' }},
+            {content: { $regex: search, $options: 'i' }}
+        ]
+    });
+
+    res.render('search_results', { articles: searchQuery, search, allCategories });
 });
 
 

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="bg">
+
+<%- include('head') %>
+<style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+    }
+</style>
+
+<body>
+    <%- include('header') %>
+    <main>
+        <h4>Резултати от търсенето за "<%= search %>": </h4>
+
+        <% if (articles) {%>
+            <% articles.forEach(item => { %>
+                <h3 for="">
+                    <%= item.title %>
+                </h3><br>
+                <label for="">
+                    <% allCategories.forEach(c => {
+                        if (c.slug === item.categorySlug) { %>
+                            <%= c.name %>
+                    <% }}) %>
+                </label><br>
+                <label for="">Views: <%= item.articleViews%></label><br><br>
+
+            <% }); %>
+        <% } else { %>
+            <p>Няма резултати от вашето търсене!</p>
+        <% } %>
+    </main>
+    <%- include('footer') %>
+</body>
+</html>

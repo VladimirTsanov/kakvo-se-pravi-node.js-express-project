@@ -31,6 +31,10 @@ const articleSchema = new Schema({
 
     articleViews: {
         type: Number
+    },
+
+    imageUrl: {
+        type: String,
     }
 });
 

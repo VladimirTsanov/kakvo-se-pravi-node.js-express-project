@@ -1,24 +1,58 @@
 <header>
-    <a href="/"><img src="#" alt="Logo_here"></a>
-    
-    <nav style="display: inline;">
-        <label>Search div here-\/</label>
-        <select name="cars" id="cars">
-            <option value="personal_info">Лична информация</option>
-            <option value="works_insurances">Работа и осигуровки</option>
-            <option value="tax_finances">Данъци и финанси</option>
-            <option value="healthcare">Здравеопазване</option>
-            <option value="education">Опразование</option>
-            <option value="transport_driving">Транспорт и шофиране</option>
-            <option value="house">Жилище и комунални</option>
-            <option value="citizen_rights">Граждански права</option>
-            <option value="foreign_trip">Пътуване в чужбина</option>
-            <option value="e_services">Електронни услуги</option>
-        </select>
-        <a href="/frequently-asked-questions"><label for="">Най-четени публикации</label></a>
-        <a href="/about-page"><label for="">За сайта </label></a>
-        <a href="/feedback"><label for="">Обратна връзка </label></a>
-    </nav>
-    <a href="/"><img src="" alt="facebook_icon"></a>
-    <a href="/"><img src="" alt="instagram_icon"></a>
+  <style>
+    .nav-link i.fa:not(.fa-search) {
+      font-size: 1.2rem;
+      text-align: center;
+      text-decoration: none;
+      margin-right: 3px;
+      padding: 6px 10px;
+      border-radius: 20px;
+    }
+
+    .fa-facebook {
+      color: white;
+      background-color: rgb(24, 119, 242);
+    }
+
+    .fa-instagram {
+      color: white;
+      background: #F9CE34;
+      background: linear-gradient(90deg, rgba(249, 206, 52, 1) 0%, rgba(238, 42, 123, 1) 50%, rgba(98, 40, 215, 1) 100%);
+    }
+
+    .nav-text {
+      transition: all 0.3s ease;
+      border-radius: 10px;
+      padding: 4px 8px;
+    }
+
+    .nav-text:hover {
+      background-color: aqua;
+      color: white;
+      transform: scale(1.05);
+    }
+  </style>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
+    <a class="navbar-brand" href="/">
+      <img src="/images/noBgBlack.png" alt="Logo_here">
+    </a>
+
+    <form class="d-flex ms-3" action="/search_results" method="get">
+      <input class="form-control me-2" type="text" placeholder="Search..." name="search" value="<%= search || '' %>">
+      <button class="btn btn-outline-primary" type="submit">
+        <i class="fa fa-search"></i>
+      </button>
+    </form>
+
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <a class="nav-link me-3 nav-text" href="/all-categories">Категории</a>
+      <a class="nav-link me-3 nav-text" href="/about-page">За сайта</a>
+      <a class="nav-link me-3 nav-text" href="/feedback">Обратна връзка</a>
+
+      <a class="nav-link me-3" href="#"><i class="fa fa-facebook"></i></a>
+      <a class="nav-link" href="#"><i class="fa fa-instagram"></i></a>
+
+    </div>
+  </nav>
 </header>
